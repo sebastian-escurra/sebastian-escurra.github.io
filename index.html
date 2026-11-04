@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sebastian Alexander Escurra Carmelo</title>
+<meta name="description" content="Second-year mathematics student at the Université de Montpellier. Projects on Monte Carlo option pricing and limit order book matching.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sebastian Alexander Escurra Carmelo">
+<meta property="og:description" content="Second-year mathematics student at the Université de Montpellier. Projects on Monte Carlo option pricing and limit order book matching.">
+<meta name="theme-color" content="#F5F6F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12181B" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='20' width='6' height='9' fill='%23B07A2A'/%3E%3Crect x='11' y='13' width='6' height='16' fill='%23B07A2A'/%3E%3Crect x='19' y='3' width='6' height='26' fill='%2300906F'/%3E%3C/svg%3E">
+
+
+<style>
+@font-face{font-family:"LM Roman Web";src:url(fonts/lmroman10-regular.woff) format("woff");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"LM Roman Web";src:url(fonts/lmroman10-italic.woff) format("woff");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"LM Roman Web";src:url(fonts/lmromandemi10-regular.woff) format("woff");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"LM Sans Web";src:url(fonts/lmsans10-regular.woff) format("woff");font-weight:400;font-style:normal;font-display:swap}
+
+:root{
+  --paper:#F5F6F4; --ink:#1F2933; --ink-2:#46525B; --muted:#5A666F; --rule:#D3D9D6;
+  --link:#0B6B55; --base:#B07A2A; --imp:#00906F; --hl:rgba(31,41,51,.07);
+  --serif:"LM Roman Web","Latin Modern Roman","Bitstream Charter",Charter,Georgia,serif;
+  --sans:"LM Sans Web","Latin Modern Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#12181B; --ink:#E7ECEA; --ink-2:#B9C4C3; --muted:#93A1A2; --rule:#2B3539;
+    --link:#53CBA8; --base:#B88A3A; --imp:#1DAE86; --hl:rgba(231,236,234,.09);
+  }
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.1875rem/1.6 var(--serif);font-synthesis:none;text-rendering:optimizeLegibility}
+.wrap{width:min(100% - 2rem,64rem);margin-inline:auto}
+sup,sub{font-size:.72em;line-height:0}
+a{color:var(--link);text-decoration-thickness:1px;text-underline-offset:.2em}
+a:hover{text-decoration-thickness:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:2px}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.25rem 1.5rem;padding-block:1.25rem;font:400 .95rem var(--sans)}
+.top a{color:var(--ink-2);text-decoration:none}
+.top a:hover{color:var(--link);text-decoration:underline}
+
+/* hero */
+.hero{padding-top:clamp(1.5rem,6vw,4rem)}
+h1{font:600 clamp(1.85rem,5.4vw,3rem)/1.12 var(--serif);letter-spacing:-.005em;margin:0 0 1.25rem;text-wrap:balance}
+.lead{font-size:clamp(1.3rem,2.6vw,1.65rem);line-height:1.4;max-width:36rem;margin:0}
+
+/* chart */
+.chart{margin:3.25rem 0 0}
+.chart-title{font:600 1.3rem/1.3 var(--serif);margin:0}
+.chart-sub{font:400 .95rem/1.5 var(--sans);color:var(--muted);margin:.35rem 0 0;max-width:46rem}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.5rem;list-style:none;margin:1rem 0 .75rem;padding:0;font:400 .92rem var(--sans);color:var(--ink-2)}
+.legend li{display:flex;align-items:center;gap:.5rem}
+.sw{width:.8rem;height:.8rem;border-radius:2px;flex:none}
+.sw-base{background:var(--base)}
+.sw-imp{background:var(--imp)}
+.sw-line{width:1.1rem;height:0;border-top:2px solid var(--ink);border-radius:0}
+.plot-wrap{position:relative}
+svg.plot{display:block;width:100%;height:auto;overflow:visible}
+svg.v-narrow{display:none}
+svg.plot text{font-family:var(--sans);fill:var(--muted)}
+svg.v-wide text{font-size:13px}
+svg.v-narrow text{font-size:12px}
+svg.plot .t-ink{fill:var(--ink)}
+svg.plot .t-ink2{fill:var(--ink-2)}
+svg.plot .grid{stroke:var(--rule);stroke-width:1}
+svg.plot .leader{stroke:var(--muted);stroke-width:1}
+svg.plot .bs{stroke:var(--ink);stroke-width:1.5}
+svg.plot .bar{stroke:var(--paper);stroke-width:2}
+svg.v-narrow .bar{stroke-width:1.25}
+svg.plot .std{fill:var(--base)}
+svg.plot .imp{fill:var(--imp)}
+svg.plot .hl{fill:var(--hl);opacity:0;pointer-events:none}
+.tip{position:absolute;z-index:2;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:.45rem .65rem;font:400 .85rem/1.45 var(--sans);box-shadow:0 2px 10px rgba(0,0,0,.12);white-space:nowrap}
+.tip b{font-weight:400;color:var(--muted)}
+
+details.data{margin-top:.5rem;font-family:var(--sans)}
+details.data summary{cursor:pointer;font-size:.92rem;color:var(--ink-2);width:max-content;max-width:100%}
+.table-scroll{overflow-x:auto;margin-top:.75rem}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:.45rem .75rem .45rem 0;text-align:right;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums;font-weight:400}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);vertical-align:bottom}
+.data-note{font-size:.85rem;line-height:1.5;color:var(--muted);max-width:46rem;margin:.75rem 0 0}
+
+/* sections */
+.section{display:grid;grid-template-columns:11.5rem minmax(0,1fr);column-gap:2.5rem;padding-block:2.75rem}
+.section>h2{font:600 1.45rem/1.2 var(--serif);margin:.15rem 0 0}
+.body{max-width:38rem}
+.body p{margin:0 0 1.1rem}
+.body p:last-child{margin-bottom:0}
+.body strong{font-weight:600}
+.list{list-style:none;margin:0;padding:0}
+.list li{margin:0 0 1rem}
+.list li:last-child{margin-bottom:0}
+
+.project{margin:0 0 3rem}
+.project:last-child{margin-bottom:0}
+.project h3{font:600 1.5rem/1.25 var(--serif);margin:0 0 .6rem}
+dl.facts{margin:1.1rem 0 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.55rem 1rem;font-size:1rem;line-height:1.5}
+dl.facts dt{font:400 .92rem/1.55 var(--sans);color:var(--muted)}
+dl.facts dd{margin:0;overflow-wrap:anywhere}
+.body .links{margin:1.1rem 0 0;display:flex;flex-wrap:wrap;gap:.35rem 1.5rem;font-family:var(--sans);font-size:.98rem}
+
+footer{padding-block:2rem 3rem;font:400 .85rem/1.5 var(--sans);color:var(--muted)}
+footer p{margin:0;max-width:40rem}
+
+@media (max-width:48rem){
+  .section{grid-template-columns:1fr;row-gap:1rem;padding-block:2.25rem}
+  dl.facts{grid-template-columns:1fr;gap:.1rem}
+  dl.facts dd{margin-bottom:.6rem}
+}
+@media (max-width:40rem){
+  svg.v-wide{display:none}
+  svg.v-narrow{display:block}
+}
+
+/* one orchestrated moment: the precise estimator grows from the baseline */
+.bar{transform-box:fill-box;transform-origin:50% 100%}
+.bar.std{animation:fade .6s ease-out both}
+.bar.imp{animation:grow .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0ms)}
+@keyframes fade{from{opacity:0}}
+@keyframes grow{from{transform:scaleY(0)}}
+@media (prefers-reduced-motion:reduce){
+  .bar.std,.bar.imp{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="top" aria-label="Sections">
+    <a href="#about">About</a>
+    <a href="#interests">Interests</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <header class="hero">
+    <h1>Sebastian Alexander Escurra Carmelo</h1>
+    <p class="lead">I’m a second-year mathematics student at the Université de Montpellier. I’m interested in how options are priced, how markets match buyers with sellers, and how to check that a numerical answer is right.</p>
+  </header>
+
+  <figure class="chart" aria-describedby="chart-desc">
+    <h2 class="chart-title" id="chart-title">The same option, priced two ways with 1,000 simulated payoffs</h2>
+    <p class="chart-sub">Each shape shows 5,000 repeated price estimates. Height is the share of estimates in each price bin of width 0.05, so a narrower shape means a more precise method.</p>
+    <ul class="legend">
+      <li><span class="sw sw-base"></span>Standard Monte Carlo</li>
+      <li><span class="sw sw-imp"></span>Antithetic + control variate</li>
+      <li><span class="sw sw-line"></span>Exact Black–Scholes price</li>
+    </ul>
+    <div class="plot-wrap">
+      <svg class="plot v-wide" viewBox="0 0 720 312" role="img" aria-labelledby="chart-title chart-desc" data-x0="44" data-bw="13.2800"><line class="grid" x1="44" x2="708" y1="256.0" y2="256.0"/><text x="36" y="260.0" text-anchor="end">0%</text><line class="grid" x1="44" x2="708" y1="164.3" y2="164.3"/><text x="36" y="168.3" text-anchor="end">10%</text><line class="grid" x1="44" x2="708" y1="72.7" y2="72.7"/><text x="36" y="76.7" text-anchor="end">20%</text><path class="bar std" d="M44.00 256.00V256.00Q44.00 255.27 44.73 255.27H56.55Q57.28 255.27 57.28 256.00V256.00Z"/><path class="bar std" d="M57.28 256.00V256.00Q57.28 255.45 57.83 255.45H70.01Q70.56 255.45 70.56 256.00V256.00Z"/><path class="bar std" d="M70.56 256.00V256.00Q70.56 254.17 72.39 254.17H82.01Q83.84 254.17 83.84 256.00V256.00Z"/><path class="bar std" d="M83.84 256.00V256.00Q83.84 254.17 85.67 254.17H95.29Q97.12 254.17 97.12 256.00V256.00Z"/><path class="bar std" d="M97.12 256.00V256.00Q97.12 254.72 98.40 254.72H109.12Q110.40 254.72 110.40 256.00V256.00Z"/><path class="bar std" d="M110.40 256.00V256.00Q110.40 252.33 114.07 252.33H120.01Q123.68 252.33 123.68 256.00V256.00Z"/><path class="bar std" d="M123.68 256.00V256.00Q123.68 253.25 126.43 253.25H134.21Q136.96 253.25 136.96 256.00V256.00Z"/><path class="bar std" d="M136.96 256.00V255.23Q136.96 251.23 140.96 251.23H146.24Q150.24 251.23 150.24 255.23V256.00Z"/><path class="bar std" d="M150.24 256.00V252.85Q150.24 248.85 154.24 248.85H159.52Q163.52 248.85 163.52 252.85V256.00Z"/><path class="bar std" d="M163.52 256.00V251.75Q163.52 247.75 167.52 247.75H172.80Q176.80 247.75 176.80 251.75V256.00Z"/><path class="bar std" d="M176.80 256.00V248.45Q176.80 244.45 180.80 244.45H186.08Q190.08 244.45 190.08 248.45V256.00Z"/><path class="bar std" d="M190.08 256.00V249.00Q190.08 245.00 194.08 245.00H199.36Q203.36 245.00 203.36 249.00V256.00Z"/><path class="bar std" d="M203.36 256.00V245.88Q203.36 241.88 207.36 241.88H212.64Q216.64 241.88 216.64 245.88V256.00Z"/><path class="bar std" d="M216.64 256.00V241.85Q216.64 237.85 220.64 237.85H225.92Q229.92 237.85 229.92 241.85V256.00Z"/><path class="bar std" d="M229.92 256.00V240.20Q229.92 236.20 233.92 236.20H239.20Q243.20 236.20 243.20 240.20V256.00Z"/><path class="bar std" d="M243.20 256.00V233.42Q243.20 229.42 247.20 229.42H252.48Q256.48 229.42 256.48 233.42V256.00Z"/><path class="bar std" d="M256.48 256.00V229.75Q256.48 225.75 260.48 225.75H265.76Q269.76 225.75 269.76 229.75V256.00Z"/><path class="bar std" d="M269.76 256.00V226.63Q269.76 222.63 273.76 222.63H279.04Q283.04 222.63 283.04 226.63V256.00Z"/><path class="bar std" d="M283.04 256.00V224.98Q283.04 220.98 287.04 220.98H292.32Q296.32 220.98 296.32 224.98V256.00Z"/><path class="bar std" d="M296.32 256.00V218.38Q296.32 214.38 300.32 214.38H305.60Q309.60 214.38 309.60 218.38V256.00Z"/><path class="bar std" d="M309.60 256.00V217.83Q309.60 213.83 313.60 213.83H318.88Q322.88 213.83 322.88 217.83V256.00Z"/><path class="bar std" d="M322.88 256.00V221.32Q322.88 217.32 326.88 217.32H332.16Q336.16 217.32 336.16 221.32V256.00Z"/><path class="bar std" d="M336.16 256.00V211.23Q336.16 207.23 340.16 207.23H345.44Q349.44 207.23 349.44 211.23V256.00Z"/><path class="bar std" d="M349.44 256.00V213.98Q349.44 209.98 353.44 209.98H358.72Q362.72 209.98 362.72 213.98V256.00Z"/><path class="bar std" d="M362.72 256.00V213.25Q362.72 209.25 366.72 209.25H372.00Q376.00 209.25 376.00 213.25V256.00Z"/><path class="bar std" d="M376.00 256.00V214.35Q376.00 210.35 380.00 210.35H385.28Q389.28 210.35 389.28 214.35V256.00Z"/><path class="bar std" d="M389.28 256.00V225.53Q389.28 221.53 393.28 221.53H398.56Q402.56 221.53 402.56 225.53V256.00Z"/><path class="bar std" d="M402.56 256.00V215.27Q402.56 211.27 406.56 211.27H411.84Q415.84 211.27 415.84 215.27V256.00Z"/><path class="bar std" d="M415.84 256.00V223.15Q415.84 219.15 419.84 219.15H425.12Q429.12 219.15 429.12 223.15V256.00Z"/><path class="bar std" d="M429.12 256.00V228.28Q429.12 224.28 433.12 224.28H438.40Q442.40 224.28 442.40 228.28V256.00Z"/><path class="bar std" d="M442.40 256.00V227.55Q442.40 223.55 446.40 223.55H451.68Q455.68 223.55 455.68 227.55V256.00Z"/><path class="bar std" d="M455.68 256.00V229.02Q455.68 225.02 459.68 225.02H464.96Q468.96 225.02 468.96 229.02V256.00Z"/><path class="bar std" d="M468.96 256.00V232.50Q468.96 228.50 472.96 228.50H478.24Q482.24 228.50 482.24 232.50V256.00Z"/><path class="bar std" d="M482.24 256.00V236.72Q482.24 232.72 486.24 232.72H491.52Q495.52 232.72 495.52 236.72V256.00Z"/><path class="bar std" d="M495.52 256.00V238.73Q495.52 234.73 499.52 234.73H504.80Q508.80 234.73 508.80 238.73V256.00Z"/><path class="bar std" d="M508.80 256.00V239.47Q508.80 235.47 512.80 235.47H518.08Q522.08 235.47 522.08 239.47V256.00Z"/><path class="bar std" d="M522.08 256.00V246.25Q522.08 242.25 526.08 242.25H531.36Q535.36 242.25 535.36 246.25V256.00Z"/><path class="bar std" d="M535.36 256.00V247.35Q535.36 243.35 539.36 243.35H544.64Q548.64 243.35 548.64 247.35V256.00Z"/><path class="bar std" d="M548.64 256.00V250.28Q548.64 246.28 552.64 246.28H557.92Q561.92 246.28 561.92 250.28V256.00Z"/><path class="bar std" d="M561.92 256.00V251.75Q561.92 247.75 565.92 247.75H571.20Q575.20 247.75 575.20 251.75V256.00Z"/><path class="bar std" d="M575.20 256.00V255.23Q575.20 251.23 579.20 251.23H584.48Q588.48 251.23 588.48 255.23V256.00Z"/><path class="bar std" d="M588.48 256.00V254.87Q588.48 250.87 592.48 250.87H597.76Q601.76 250.87 601.76 254.87V256.00Z"/><path class="bar std" d="M601.76 256.00V256.00Q601.76 252.88 604.88 252.88H611.92Q615.04 252.88 615.04 256.00V256.00Z"/><path class="bar std" d="M615.04 256.00V255.42Q615.04 251.42 619.04 251.42H624.32Q628.32 251.42 628.32 255.42V256.00Z"/><path class="bar std" d="M628.32 256.00V256.00Q628.32 253.80 630.52 253.80H639.40Q641.60 253.80 641.60 256.00V256.00Z"/><path class="bar std" d="M641.60 256.00V256.00Q641.60 254.53 643.07 254.53H653.41Q654.88 254.53 654.88 256.00V256.00Z"/><path class="bar std" d="M654.88 256.00V256.00Q654.88 255.27 655.61 255.27H667.43Q668.16 255.27 668.16 256.00V256.00Z"/><path class="bar std" d="M668.16 256.00V256.00Q668.16 255.27 668.89 255.27H680.71Q681.44 255.27 681.44 256.00V256.00Z"/><path class="bar std" d="M681.44 256.00V256.00Q681.44 255.08 682.36 255.08H693.80Q694.72 255.08 694.72 256.00V256.00Z"/><path class="bar std" d="M694.72 256.00V256.00Q694.72 255.63 695.09 255.63H707.63Q708.00 255.63 708.00 256.00V256.00Z"/><path class="bar imp" style="--d:590ms" d="M269.76 256.00V256.00Q269.76 255.82 269.94 255.82H282.86Q283.04 255.82 283.04 256.00V256.00Z"/><path class="bar imp" style="--d:550ms" d="M283.04 256.00V256.00Q283.04 255.45 283.59 255.45H295.77Q296.32 255.45 296.32 256.00V256.00Z"/><path class="bar imp" style="--d:510ms" d="M296.32 256.00V254.68Q296.32 250.68 300.32 250.68H305.60Q309.60 250.68 309.60 254.68V256.00Z"/><path class="bar imp" style="--d:470ms" d="M309.60 256.00V245.88Q309.60 241.88 313.60 241.88H318.88Q322.88 241.88 322.88 245.88V256.00Z"/><path class="bar imp" style="--d:430ms" d="M322.88 256.00V213.43Q322.88 209.43 326.88 209.43H332.16Q336.16 209.43 336.16 213.43V256.00Z"/><path class="bar imp" style="--d:390ms" d="M336.16 256.00V156.05Q336.16 152.05 340.16 152.05H345.44Q349.44 152.05 349.44 156.05V256.00Z"/><path class="bar imp" style="--d:350ms" d="M349.44 256.00V95.73Q349.44 91.73 353.44 91.73H358.72Q362.72 91.73 362.72 95.73V256.00Z"/><path class="bar imp" style="--d:350ms" d="M362.72 256.00V67.50Q362.72 63.50 366.72 63.50H372.00Q376.00 63.50 376.00 67.50V256.00Z"/><path class="bar imp" style="--d:390ms" d="M376.00 256.00V75.93Q376.00 71.93 380.00 71.93H385.28Q389.28 71.93 389.28 75.93V256.00Z"/><path class="bar imp" style="--d:430ms" d="M389.28 256.00V139.92Q389.28 135.92 393.28 135.92H398.56Q402.56 135.92 402.56 139.92V256.00Z"/><path class="bar imp" style="--d:470ms" d="M402.56 256.00V202.43Q402.56 198.43 406.56 198.43H411.84Q415.84 198.43 415.84 202.43V256.00Z"/><path class="bar imp" style="--d:510ms" d="M415.84 256.00V239.47Q415.84 235.47 419.84 235.47H425.12Q429.12 235.47 429.12 239.47V256.00Z"/><path class="bar imp" style="--d:550ms" d="M429.12 256.00V253.22Q429.12 249.22 433.12 249.22H438.40Q442.40 249.22 442.40 253.22V256.00Z"/><path class="bar imp" style="--d:590ms" d="M442.40 256.00V256.00Q442.40 255.82 442.58 255.82H455.50Q455.68 255.82 455.68 256.00V256.00Z"/><rect class="hl" x="44" y="28" width="13.28" height="228"/><line class="bs" x1="368.4" x2="368.4" y1="26" y2="256"/><text class="t-ink" x="368.4" y="20" text-anchor="middle">Exact Black–Scholes price: 8.02</text><text x="97.1" y="276" text-anchor="middle">7</text><text x="229.9" y="276" text-anchor="middle">7.5</text><text x="362.7" y="276" text-anchor="middle">8</text><text x="495.5" y="276" text-anchor="middle">8.5</text><text x="628.3" y="276" text-anchor="middle">9</text><text x="376.0" y="300" text-anchor="middle">Estimated option price</text><text class="t-ink" x="500.8" y="159.8">Standard Monte Carlo</text><line class="leader" x1="528.7" x2="528.7" y1="165.8" y2="237.2"/><text class="t-ink" x="401.2" y="70.1">Antithetic + control variate</text><text class="t-ink2" x="401.2" y="88.1">about 20× smaller variance</text></svg>
+      <svg class="plot v-narrow" viewBox="0 0 360 336" role="img" aria-labelledby="chart-title chart-desc" data-x0="36" data-bw="6.3200"><line class="grid" x1="36" x2="352" y1="268.0" y2="268.0"/><text x="30" y="272.0" text-anchor="end">0%</text><line class="grid" x1="36" x2="352" y1="179.7" y2="179.7"/><text x="30" y="183.7" text-anchor="end">10%</text><line class="grid" x1="36" x2="352" y1="91.3" y2="91.3"/><text x="30" y="95.3" text-anchor="end">20%</text><path class="bar std" d="M36.00 268.00V268.00Q36.00 267.29 36.71 267.29H41.61Q42.32 267.29 42.32 268.00V268.00Z"/><path class="bar std" d="M42.32 268.00V268.00Q42.32 267.47 42.85 267.47H48.11Q48.64 267.47 48.64 268.00V268.00Z"/><path class="bar std" d="M48.64 268.00V268.00Q48.64 266.23 50.41 266.23H53.19Q54.96 266.23 54.96 268.00V268.00Z"/><path class="bar std" d="M54.96 268.00V268.00Q54.96 266.23 56.73 266.23H59.51Q61.28 266.23 61.28 268.00V268.00Z"/><path class="bar std" d="M61.28 268.00V268.00Q61.28 266.76 62.52 266.76H66.36Q67.60 266.76 67.60 268.00V268.00Z"/><path class="bar std" d="M67.60 268.00V267.63Q67.60 264.47 70.76 264.47H70.76Q73.92 264.47 73.92 267.63V268.00Z"/><path class="bar std" d="M73.92 268.00V268.00Q73.92 265.35 76.57 265.35H77.59Q80.24 265.35 80.24 268.00V268.00Z"/><path class="bar std" d="M80.24 268.00V266.57Q80.24 263.41 83.40 263.41H83.40Q86.56 263.41 86.56 266.57V268.00Z"/><path class="bar std" d="M86.56 268.00V264.27Q86.56 261.11 89.72 261.11H89.72Q92.88 261.11 92.88 264.27V268.00Z"/><path class="bar std" d="M92.88 268.00V263.21Q92.88 260.05 96.04 260.05H96.04Q99.20 260.05 99.20 263.21V268.00Z"/><path class="bar std" d="M99.20 268.00V260.03Q99.20 256.87 102.36 256.87H102.36Q105.52 256.87 105.52 260.03V268.00Z"/><path class="bar std" d="M105.52 268.00V260.56Q105.52 257.40 108.68 257.40H108.68Q111.84 257.40 111.84 260.56V268.00Z"/><path class="bar std" d="M111.84 268.00V257.56Q111.84 254.40 115.00 254.40H115.00Q118.16 254.40 118.16 257.56V268.00Z"/><path class="bar std" d="M118.16 268.00V253.67Q118.16 250.51 121.32 250.51H121.32Q124.48 250.51 124.48 253.67V268.00Z"/><path class="bar std" d="M124.48 268.00V252.08Q124.48 248.92 127.64 248.92H127.64Q130.80 248.92 130.80 252.08V268.00Z"/><path class="bar std" d="M130.80 268.00V245.54Q130.80 242.38 133.96 242.38H133.96Q137.12 242.38 137.12 245.54V268.00Z"/><path class="bar std" d="M137.12 268.00V242.01Q137.12 238.85 140.28 238.85H140.28Q143.44 238.85 143.44 242.01V268.00Z"/><path class="bar std" d="M143.44 268.00V239.01Q143.44 235.85 146.60 235.85H146.60Q149.76 235.85 149.76 239.01V268.00Z"/><path class="bar std" d="M149.76 268.00V237.42Q149.76 234.26 152.92 234.26H152.92Q156.08 234.26 156.08 237.42V268.00Z"/><path class="bar std" d="M156.08 268.00V231.06Q156.08 227.90 159.24 227.90H159.24Q162.40 227.90 162.40 231.06V268.00Z"/><path class="bar std" d="M162.40 268.00V230.53Q162.40 227.37 165.56 227.37H165.56Q168.72 227.37 168.72 230.53V268.00Z"/><path class="bar std" d="M168.72 268.00V233.88Q168.72 230.72 171.88 230.72H171.88Q175.04 230.72 175.04 233.88V268.00Z"/><path class="bar std" d="M175.04 268.00V224.17Q175.04 221.01 178.20 221.01H178.20Q181.36 221.01 181.36 224.17V268.00Z"/><path class="bar std" d="M181.36 268.00V226.82Q181.36 223.66 184.52 223.66H184.52Q187.68 223.66 187.68 226.82V268.00Z"/><path class="bar std" d="M187.68 268.00V226.11Q187.68 222.95 190.84 222.95H190.84Q194.00 222.95 194.00 226.11V268.00Z"/><path class="bar std" d="M194.00 268.00V227.17Q194.00 224.01 197.16 224.01H197.16Q200.32 224.01 200.32 227.17V268.00Z"/><path class="bar std" d="M200.32 268.00V237.95Q200.32 234.79 203.48 234.79H203.48Q206.64 234.79 206.64 237.95V268.00Z"/><path class="bar std" d="M206.64 268.00V228.05Q206.64 224.89 209.80 224.89H209.80Q212.96 224.89 212.96 228.05V268.00Z"/><path class="bar std" d="M212.96 268.00V235.65Q212.96 232.49 216.12 232.49H216.12Q219.28 232.49 219.28 235.65V268.00Z"/><path class="bar std" d="M219.28 268.00V240.60Q219.28 237.44 222.44 237.44H222.44Q225.60 237.44 225.60 240.60V268.00Z"/><path class="bar std" d="M225.60 268.00V239.89Q225.60 236.73 228.76 236.73H228.76Q231.92 236.73 231.92 239.89V268.00Z"/><path class="bar std" d="M231.92 268.00V241.30Q231.92 238.14 235.08 238.14H235.08Q238.24 238.14 238.24 241.30V268.00Z"/><path class="bar std" d="M238.24 268.00V244.66Q238.24 241.50 241.40 241.50H241.40Q244.56 241.50 244.56 244.66V268.00Z"/><path class="bar std" d="M244.56 268.00V248.72Q244.56 245.56 247.72 245.56H247.72Q250.88 245.56 250.88 248.72V268.00Z"/><path class="bar std" d="M250.88 268.00V250.67Q250.88 247.51 254.04 247.51H254.04Q257.20 247.51 257.20 250.67V268.00Z"/><path class="bar std" d="M257.20 268.00V251.37Q257.20 248.21 260.36 248.21H260.36Q263.52 248.21 263.52 251.37V268.00Z"/><path class="bar std" d="M263.52 268.00V257.91Q263.52 254.75 266.68 254.75H266.68Q269.84 254.75 269.84 257.91V268.00Z"/><path class="bar std" d="M269.84 268.00V258.97Q269.84 255.81 273.00 255.81H273.00Q276.16 255.81 276.16 258.97V268.00Z"/><path class="bar std" d="M276.16 268.00V261.80Q276.16 258.64 279.32 258.64H279.32Q282.48 258.64 282.48 261.80V268.00Z"/><path class="bar std" d="M282.48 268.00V263.21Q282.48 260.05 285.64 260.05H285.64Q288.80 260.05 288.80 263.21V268.00Z"/><path class="bar std" d="M288.80 268.00V266.57Q288.80 263.41 291.96 263.41H291.96Q295.12 263.41 295.12 266.57V268.00Z"/><path class="bar std" d="M295.12 268.00V266.21Q295.12 263.05 298.28 263.05H298.28Q301.44 263.05 301.44 266.21V268.00Z"/><path class="bar std" d="M301.44 268.00V268.00Q301.44 265.00 304.44 265.00H304.76Q307.76 265.00 307.76 268.00V268.00Z"/><path class="bar std" d="M307.76 268.00V266.74Q307.76 263.58 310.92 263.58H310.92Q314.08 263.58 314.08 266.74V268.00Z"/><path class="bar std" d="M314.08 268.00V268.00Q314.08 265.88 316.20 265.88H318.28Q320.40 265.88 320.40 268.00V268.00Z"/><path class="bar std" d="M320.40 268.00V268.00Q320.40 266.59 321.81 266.59H325.31Q326.72 266.59 326.72 268.00V268.00Z"/><path class="bar std" d="M326.72 268.00V268.00Q326.72 267.29 327.43 267.29H332.33Q333.04 267.29 333.04 268.00V268.00Z"/><path class="bar std" d="M333.04 268.00V268.00Q333.04 267.29 333.75 267.29H338.65Q339.36 267.29 339.36 268.00V268.00Z"/><path class="bar std" d="M339.36 268.00V268.00Q339.36 267.12 340.24 267.12H344.80Q345.68 267.12 345.68 268.00V268.00Z"/><path class="bar std" d="M345.68 268.00V268.00Q345.68 267.65 346.03 267.65H351.65Q352.00 267.65 352.00 268.00V268.00Z"/><path class="bar imp" style="--d:590ms" d="M143.44 268.00V268.00Q143.44 267.82 143.62 267.82H149.58Q149.76 267.82 149.76 268.00V268.00Z"/><path class="bar imp" style="--d:550ms" d="M149.76 268.00V268.00Q149.76 267.47 150.29 267.47H155.55Q156.08 267.47 156.08 268.00V268.00Z"/><path class="bar imp" style="--d:510ms" d="M156.08 268.00V266.04Q156.08 262.88 159.24 262.88H159.24Q162.40 262.88 162.40 266.04V268.00Z"/><path class="bar imp" style="--d:470ms" d="M162.40 268.00V257.56Q162.40 254.40 165.56 254.40H165.56Q168.72 254.40 168.72 257.56V268.00Z"/><path class="bar imp" style="--d:430ms" d="M168.72 268.00V226.29Q168.72 223.13 171.88 223.13H171.88Q175.04 223.13 175.04 226.29V268.00Z"/><path class="bar imp" style="--d:390ms" d="M175.04 268.00V170.99Q175.04 167.83 178.20 167.83H178.20Q181.36 167.83 181.36 170.99V268.00Z"/><path class="bar imp" style="--d:350ms" d="M181.36 268.00V112.87Q181.36 109.71 184.52 109.71H184.52Q187.68 109.71 187.68 112.87V268.00Z"/><path class="bar imp" style="--d:350ms" d="M187.68 268.00V85.66Q187.68 82.50 190.84 82.50H190.84Q194.00 82.50 194.00 85.66V268.00Z"/><path class="bar imp" style="--d:390ms" d="M194.00 268.00V93.79Q194.00 90.63 197.16 90.63H197.16Q200.32 90.63 200.32 93.79V268.00Z"/><path class="bar imp" style="--d:430ms" d="M200.32 268.00V155.44Q200.32 152.28 203.48 152.28H203.48Q206.64 152.28 206.64 155.44V268.00Z"/><path class="bar imp" style="--d:470ms" d="M206.64 268.00V215.69Q206.64 212.53 209.80 212.53H209.80Q212.96 212.53 212.96 215.69V268.00Z"/><path class="bar imp" style="--d:510ms" d="M212.96 268.00V251.37Q212.96 248.21 216.12 248.21H216.12Q219.28 248.21 219.28 251.37V268.00Z"/><path class="bar imp" style="--d:550ms" d="M219.28 268.00V264.62Q219.28 261.46 222.44 261.46H222.44Q225.60 261.46 225.60 264.62V268.00Z"/><path class="bar imp" style="--d:590ms" d="M225.60 268.00V268.00Q225.60 267.82 225.78 267.82H231.74Q231.92 267.82 231.92 268.00V268.00Z"/><rect class="hl" x="36" y="48" width="6.32" height="220"/><line class="bs" x1="190.4" x2="190.4" y1="46" y2="268"/><text class="t-ink" x="190.4" y="40" text-anchor="middle">Exact price: 8.02</text><text x="61.3" y="287" text-anchor="middle">7</text><text x="187.7" y="287" text-anchor="middle">8</text><text x="314.1" y="287" text-anchor="middle">9</text><text x="194.0" y="310" text-anchor="middle">Estimated option price</text><text class="t-ink" x="250.9" y="166.4">Standard</text><text class="t-ink" x="250.9" y="181.4">Monte Carlo</text><line class="leader" x1="266.7" x2="266.7" y1="188.4" y2="249.8"/><text class="t-ink" x="207.1" y="82.1">Antithetic +</text><text class="t-ink" x="207.1" y="97.1">control variate</text><text class="t-ink2" x="207.1" y="115.1">20× smaller</text><text class="t-ink2" x="207.1" y="130.1">variance</text></svg>
+      <div class="tip" hidden></div>
+    </div>
+    <p id="chart-desc" hidden>Histograms of 5,000 repeated price estimates for two methods, each using the same budget of 1,000 simulated payoffs. Standard Monte Carlo estimates are spread widely around the exact price of 8.02, with a standard deviation of about 0.41. Antithetic plus control variate estimates are packed tightly around it, with a standard deviation of about 0.09.</p>
+    <details class="data">
+      <summary>See the numbers</summary>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">Method</th><th scope="col">Variance</th><th scope="col">Times smaller</th><th scope="col">RMSE</th></tr></thead>
+          <tbody><tr><th scope="row">Standard Monte Carlo</th><td>0.1655</td><td>1.0×</td><td>0.407</td></tr><tr><th scope="row">Antithetic variates</th><td>0.1096</td><td>1.5×</td><td>0.331</td></tr><tr><th scope="row">Control variate</th><td>0.0355</td><td>4.7×</td><td>0.189</td></tr><tr><th scope="row">Antithetic + control variate</th><td>0.0082</td><td>20.2×</td><td>0.091</td></tr></tbody>
+        </table>
+      </div>
+      <p class="data-note">European call with S<sub>0</sub> = 100, strike 105, one year, 5% interest rate and 20% volatility. Every method uses 1,000 payoff evaluations per estimate, repeated 5,000 times; the exact numbers change slightly with the random seed. Variance is the variance of the price estimate across the repetitions, “times smaller” compares it with standard Monte Carlo, and RMSE is the typical distance between an estimate and the exact price. 12 of the 5,000 standard Monte Carlo estimates fall outside the price range shown (below 6.8 or above 9.3).</p>
+    </details>
+  </figure>
+</div>
+
+<main class="wrap">
+
+  <section class="section" id="about">
+    <h2>About</h2>
+    <div class="body">
+      <p>I started studying physics at the Universidad Nacional de Ingeniería in Lima, Peru, and completed six semesters there. In August 2025 I moved to France to continue at the Université de Montpellier, where I finished the first year of the physics degree ranked 8th out of 273 students (15.885 out of 20).</p>
+      <p>Along the way I found that what I enjoyed most was mathematics and programming, so I switched to the mathematics degree. I’m now in the first semester of the second year.</p>
+      <p>I also boxed competitively for five years, winning the Peruvian national amateur title and the Occitanie regional title. I stopped in 2026 to focus on my studies. I work in Spanish, English and French, and I’m learning Portuguese.</p>
+    </div>
+  </section>
+
+  <section class="section" id="interests">
+    <h2>Interests</h2>
+    <div class="body">
+      <ul class="list">
+        <li><strong>Option pricing and Monte Carlo methods.</strong> How to make a simulation more precise without more computing, and how to measure that precisely.</li>
+        <li><strong>Market microstructure and mechanism design.</strong> How an exchange decides who trades with whom, and which rules make that fair.</li>
+        <li><strong>Probability and numerical analysis.</strong> The tools behind both of the above, which I’m studying this semester.</li>
+        <li><strong>Artificial intelligence.</strong> I want to learn it properly over the next few years.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="projects">
+    <h2>Projects</h2>
+    <div class="body">
+
+      <article class="project">
+        <h3>Monte Carlo pricing of a European call</h3>
+        <p>A Python notebook that prices a call option by simulation and compares four estimators on the same budget of 1,000 simulated payoffs: standard Monte Carlo, antithetic variates, a control variate, and the last two combined. Every estimate has a 95% confidence interval, and the exact Black–Scholes price is the reference.</p>
+        <p>Combined, the variance is about 20 times smaller than with standard Monte Carlo. The error of every method shrinks like <i>N</i><sup>−1/2</sup>, and the confidence intervals contain the true price close to 95% of the time.</p>
+        <dl class="facts">
+          <dt>Built with</dt><dd>Python, NumPy, SciPy, pandas, Matplotlib</dd>
+          <dt>Checked by</dt><dd>Comparison with the exact price, 5,000 repeated experiments, and the measured convergence rate</dd>
+        </dl>
+        <p class="links"><a href="https://github.com/sebastian-escurra/monte-carlo-option-pricing">Notebook and code on GitHub</a></p>
+      </article>
+
+      <article class="project">
+        <h3>Limit order book and matching engine</h3>
+        <p>A Java simulator of how an exchange matches buy and sell limit orders for one instrument. It follows price-time priority, handles partial fills and cancellations, and rejects invalid orders.</p>
+        <p>It comes with 25 automated checks. One of them submits 5,000 random orders and verifies after each one that the book is never crossed, that orders stay in price-time order, and that no quantity is created or lost.</p>
+        <dl class="facts">
+          <dt>Built with</dt><dd>Java, no external libraries</dd>
+          <dt>Known limit</dt><dd>Inserting an order takes time proportional to the size of the book. Keeping one queue per price level in a sorted structure would be the next step.</dd>
+        </dl>
+        <p class="links"><a href="https://github.com/sebastian-escurra/order-book-matching-engine">Code on GitHub</a></p>
+      </article>
+
+    </div>
+  </section>
+
+  <!--
+  WRITING SECTION. Uncomment when the first article is published, and link it.
+
+  <section class="section" id="writing">
+    <h2>Writing</h2>
+    <div class="body">
+      <ul class="list">
+        <li><a href="REPLACE_ARTICLE_URL">REPLACE_ARTICLE_TITLE</a></li>
+      </ul>
+    </div>
+  </section>
+  -->
+
+  <section class="section" id="approach">
+    <h2>How I work</h2>
+    <div class="body">
+      <p><strong>I compare with a known answer.</strong> When an exact result exists, as with Black–Scholes, I check the simulation against it.</p>
+      <p><strong>I report the uncertainty.</strong> An estimate without an error bar is not finished.</p>
+      <p><strong>I test the rules, not only examples.</strong> Random tests check, after every step, properties that must always hold.</p>
+      <p><strong>I use AI tools and make sure I understand the result.</strong> I use Claude to review and extend my code, and I only publish what I can explain line by line.</p>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <h2>Contact</h2>
+    <div class="body">
+      <dl class="facts">
+        <dt>GitHub</dt><dd><a href="https://github.com/sebastian-escurra">github.com/sebastian-escurra</a></dd>
+        <dt>CV</dt><dd><a href="cv.pdf">Download (PDF)</a></dd>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p>Set in Latin Modern, the typeface of TeX (GUST Font License). Plain HTML and CSS, no trackers.</p>
+</footer>
+
+<script type="application/json" id="bins">[[6.8,6.85,0.1,0.0],[6.85,6.9,0.1,0.0],[6.9,6.95,0.2,0.0],[6.95,7.0,0.2,0.0],[7.0,7.05,0.1,0.0],[7.05,7.1,0.4,0.0],[7.1,7.15,0.3,0.0],[7.15,7.2,0.5,0.0],[7.2,7.25,0.8,0.0],[7.25,7.3,0.9,0.0],[7.3,7.35,1.3,0.0],[7.35,7.4,1.2,0.0],[7.4,7.45,1.5,0.0],[7.45,7.5,2.0,0.0],[7.5,7.55,2.2,0.0],[7.55,7.6,2.9,0.0],[7.6,7.65,3.3,0.0],[7.65,7.7,3.6,0.0],[7.7,7.75,3.8,0.1],[7.75,7.8,4.5,0.6],[7.8,7.85,4.6,1.5],[7.85,7.9,4.2,5.1],[7.9,7.95,5.3,11.3],[7.95,8.0,5.0,17.9],[8.0,8.05,5.1,21.0],[8.05,8.1,5.0,20.1],[8.1,8.15,3.8,13.1],[8.15,8.2,4.9,6.3],[8.2,8.25,4.0,2.2],[8.25,8.3,3.5,0.7],[8.3,8.35,3.5,0.0],[8.35,8.4,3.4,0.0],[8.4,8.45,3.0,0.0],[8.45,8.5,2.5,0.0],[8.5,8.55,2.3,0.0],[8.55,8.6,2.2,0.0],[8.6,8.65,1.5,0.0],[8.65,8.7,1.4,0.0],[8.7,8.75,1.1,0.0],[8.75,8.8,0.9,0.0],[8.8,8.85,0.5,0.0],[8.85,8.9,0.6,0.0],[8.9,8.95,0.3,0.0],[8.95,9.0,0.5,0.0],[9.0,9.05,0.2,0.0],[9.05,9.1,0.2,0.0],[9.1,9.15,0.1,0.0],[9.15,9.2,0.1,0.0],[9.2,9.25,0.1,0.0],[9.25,9.3,0.0,0.0]]</script>
+<script>
+(function () {
+  var bins = JSON.parse(document.getElementById('bins').textContent);
+  var tip = document.querySelector('.tip');
+  var wrap = document.querySelector('.plot-wrap');
+  if (!tip || !wrap) return;
+
+  function fmt(x) { return x.toFixed(1) + '%'; }
+
+  document.querySelectorAll('svg.plot').forEach(function (svg) {
+    var vbw = svg.viewBox.baseVal.width;
+    var x0 = parseFloat(svg.getAttribute('data-x0'));
+    var bw = parseFloat(svg.getAttribute('data-bw'));
+    var hl = svg.querySelector('.hl');
+
+    function hide() { tip.hidden = true; hl.style.opacity = 0; }
+
+    svg.addEventListener('pointermove', function (e) {
+      var r = svg.getBoundingClientRect();
+      var vx = (e.clientX - r.left) / r.width * vbw;
+      var i = Math.floor((vx - x0) / bw);
+      if (i < 0 || i >= bins.length) { hide(); return; }
+      var b = bins[i];
+      hl.setAttribute('x', x0 + i * bw);
+      hl.setAttribute('width', bw);
+      hl.style.opacity = 1;
+      tip.textContent = '';
+      var l1 = document.createElement('b');
+      l1.textContent = 'Estimates from ' + b[0].toFixed(2) + ' to ' + b[1].toFixed(2);
+      tip.appendChild(l1);
+      tip.appendChild(document.createElement('br'));
+      tip.appendChild(document.createTextNode('Standard Monte Carlo: ' + fmt(b[2])));
+      tip.appendChild(document.createElement('br'));
+      tip.appendChild(document.createTextNode('Antithetic + control variate: ' + fmt(b[3])));
+      tip.hidden = false;
+      var wr = wrap.getBoundingClientRect();
+      var left = e.clientX - wr.left + 14;
+      var top = e.clientY - wr.top - 12;
+      if (left + tip.offsetWidth > wr.width) left = e.clientX - wr.left - tip.offsetWidth - 14;
+      if (left < 0) left = 0;
+      tip.style.left = left + 'px';
+      tip.style.top = Math.max(0, top) + 'px';
+    });
+    svg.addEventListener('pointerleave', hide);
+  });
+})();
+</script>
+</body>
+</html>
