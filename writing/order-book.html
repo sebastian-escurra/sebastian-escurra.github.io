@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Who trades first? A limit order book in Java</title>
+<style>
+@font-face{font-family:R;src:url(../fonts/lmroman10-regular.woff)}
+@font-face{font-family:R;font-style:italic;src:url(../fonts/lmroman10-italic.woff)}
+@font-face{font-family:R;font-weight:700;src:url(../fonts/lmromandemi10-regular.woff)}
+@font-face{font-family:S;src:url(../fonts/lmsans10-regular.woff)}
+@page{size:A4;margin:18mm 20mm}
+body{font:10.8pt/1.45 R,serif;color:#1F2933;max-width:41rem;margin:0 auto;padding:1.5rem 1rem 3rem}
+h1{font:700 22pt/1.15 R;margin:0 0 .3rem}
+.by{color:#46525B;margin:0 0 1.6rem;font-size:10.5pt}
+h2{font:700 14pt/1.2 R;margin:1.6rem 0 .4rem;break-after:avoid}
+p{margin:0 0 .75rem}
+ul{margin:.2rem 0 .8rem;padding-left:1.3rem}
+li{margin-bottom:.25rem}
+figure{margin:1.1rem 0 1.2rem;break-inside:avoid}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font:10pt/1.4 S,sans-serif;color:#46525B;margin-top:.35rem}
+table{border-collapse:collapse;width:100%;font:10pt/1.4 S,sans-serif;margin:.4rem 0 1rem;break-inside:avoid}
+th,td{padding:.3rem .5rem;border-bottom:1px solid #D3D9D6;text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{border-bottom:1.5px solid #1F2933}
+pre{font:9.2pt/1.4 "DejaVu Sans Mono",Menlo,Consolas,monospace;background:#F5F6F4;border:1px solid #D3D9D6;padding:.6rem .8rem;margin:.4rem 0 .9rem;overflow-x:auto;break-inside:avoid}
+.svgt{font-family:S,sans-serif}
+.note{font:10pt/1.4 S,sans-serif;margin:0 0 .6rem}
+a{color:#0B6B55}
+</style></head><body>
+<p class="note"><a href="../index.html">&larr; Home</a></p>
+<h1>Who trades first? Building a limit order book and matching engine in Java</h1>
+<p class="by">Sebastian Alexander Escurra Carmelo</p>
+
+<div id="body">
+<p>When you buy a share, your order does not go to another person. It goes to an order book: a list of everyone who wants to buy or sell, and at which price. A program called the matching engine decides who trades with whom, and at what price. The rules are simple to state, but a small mistake in them is unfair to someone.</p>
+<p>I built a simulator of this in Java and tested it. This article explains the rules, how the code is organised, and how I checked that the code follows the rules.</p>
+
+<h2>1. The rules</h2>
+<p>An order says BUY or SELL, a limit price and a quantity. A buyer’s limit is the most they will pay, and a seller’s limit is the least they will accept. A BUY and a SELL can trade when the buy price is at least the sell price. The simulator follows five rules:</p>
+<ul>
+<li><b>Price priority.</b> The best price is served first: the highest buy and the lowest sell.</li>
+<li><b>Time priority.</b> At the same price, the order that arrived first is served first.</li>
+<li><b>Trade price.</b> The trade happens at the price of the order that was already waiting in the book. A buyer who offers 105 and meets a seller asking 101 pays 101.</li>
+<li><b>Partial fills.</b> The quantity traded is the smaller of the two quantities. A waiting order that is only partly filled keeps its place. If the new order is only partly filled, what is left is added to the book.</li>
+<li><b>Sweeping.</b> A new order keeps trading with the next best order, as long as the prices still match.</li>
+</ul>
+<p>The simulator handles one instrument and only limit orders.</p>
+
+<h2>2. Four classes, each with one job</h2>
+<p>The code has four main classes (Figure 1). <b>Order</b> is one order: id, type, price, remaining quantity and arrival number. <b>Trade</b> is one execution: price, quantity and the ids of the buy and sell orders. <b>OrderBook</b> stores the waiting orders in two lists, buys and sells, always sorted with the best order first. <b>MatchingEngine</b> receives new orders, applies the rules and records the trades. <b>Main</b> runs five demonstration scenarios, and <b>OrderBookTests</b> runs the automated checks.</p>
+<p>The split matters. The book only stores and sorts, and the engine decides. The two lists are private, so nothing outside the book can break the sorting. The book offers only the methods the engine needs, such as <i>getBestBuy</i>, <i>removeBestSell</i> and <i>cancelOrder</i>.</p>
+<figure>
+<svg viewBox="0 0 720 450" role="img" aria-label="Diagram of the classes and how they connect">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#46525B"/></marker></defs>
+<g class="svgt" font-size="13" fill="#1F2933">
+<g stroke="#46525B" stroke-width="1.2" fill="none" marker-end="url(#ar)">
+<line x1="160" y1="74" x2="320" y2="130"/><line x1="560" y1="74" x2="400" y2="130"/>
+<line x1="300" y1="194" x2="190" y2="260"/><line x1="420" y1="194" x2="530" y2="260"/>
+<line x1="160" y1="324" x2="160" y2="372"/></g>
+<g fill="#46525B" font-size="11.5">
+<text x="190" y="96">sends orders</text><text x="468" y="96">runs checks on</text>
+<text x="190" y="236">matches against</text><text x="468" y="236">creates</text><text x="170" y="352">holds</text></g>
+<g stroke="#46525B" stroke-width="1.2" fill="#F5F6F4">
+<rect x="60" y="10" width="200" height="64" rx="4"/><rect x="460" y="10" width="200" height="64" rx="4"/>
+<rect x="260" y="130" width="200" height="64" rx="4" stroke="#00906F" stroke-width="2"/>
+<rect x="60" y="260" width="200" height="64" rx="4"/><rect x="460" y="260" width="200" height="64" rx="4"/>
+<rect x="60" y="372" width="200" height="64" rx="4"/></g>
+<g font-weight="700">
+<text x="160" y="36" text-anchor="middle">Main</text><text x="560" y="36" text-anchor="middle">OrderBookTests</text>
+<text x="360" y="156" text-anchor="middle">MatchingEngine</text><text x="160" y="286" text-anchor="middle">OrderBook</text>
+<text x="560" y="286" text-anchor="middle">Trade</text><text x="160" y="398" text-anchor="middle">Order</text></g>
+<g font-size="11.5" fill="#46525B" text-anchor="middle">
+<text x="160" y="56">five demo scenarios</text><text x="560" y="56">25 automated checks</text>
+<text x="360" y="178">validates, matches, records trades</text><text x="160" y="308">two sorted lists of waiting orders</text>
+<text x="560" y="308">price, quantity, buy id, sell id</text><text x="160" y="420">id, type, price, quantity, arrival no.</text></g>
+</g></svg>
+<figcaption><b>Figure 1.</b> The classes and how they connect.</figcaption>
+</figure>
+
+<h2>3. Time priority without comparing times</h2>
+<p>The book keeps each list sorted all the time. A new order is not added at the end and sorted later: it is inserted directly at its correct position, so the best order is always first. This is the code for a new buy:</p>
+<pre>int position = 0;
+while (position &lt; buyOrders.size()
+        &amp;&amp; buyOrders.get(position).getPrice() &gt;= order.getPrice()) {
+    position++;
+}
+buyOrders.add(position, order);</pre>
+<p>The detail is in <i>&gt;=</i>. The loop skips every order whose price is better than <i>or equal to</i> the new one. So an order with the same price is placed behind the older ones. That gives time priority without comparing any times.</p>
+<p>Who decides the arrival order? The engine does, not the user. It keeps a counter (1, 2, 3, …) and writes the number into each order when it arrives. A user cannot jump the queue by typing an older number.</p>
+
+<h2>4. A worked example</h2>
+<p>This is the second demo scenario. The book has three sell orders: id 2 and id 3 for 10 units at 100, and id 1 for 10 units at 101. Then a buy order for 25 units with a limit of 102 arrives (Figure 2).</p>
+<figure>
+<svg viewBox="0 0 720 270" role="img" aria-label="The sell side of the book before and after a buy order of 25 at 102">
+<g class="svgt" font-size="13" fill="#1F2933">
+<text x="20" y="24" font-weight="700">Before: sell orders, best first</text>
+<text x="400" y="24" font-weight="700">After</text>
+<g fill="#B07A2A">
+<rect x="150" y="44" width="120" height="30" rx="3"/><rect x="150" y="84" width="120" height="30" rx="3"/><rect x="150" y="124" width="120" height="30" rx="3"/>
+<rect x="430" y="44" width="60" height="30" rx="3"/></g>
+<g text-anchor="end"><text x="140" y="64">100 · id 2</text><text x="140" y="104">100 · id 3</text><text x="140" y="144">101 · id 1</text><text x="420" y="64">101 · id 1</text></g>
+<g fill="#FFFFFF" font-size="12"><text x="160" y="64">10 units</text><text x="160" y="104">10 units</text><text x="160" y="144">10 units</text><text x="440" y="64">5 units</text></g>
+<g stroke="#46525B" stroke-width="1.2" fill="none"><path d="M300 99H370" marker-end="url(#ar2)"/></g>
+<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#46525B"/></marker></defs>
+<text x="335" y="90" text-anchor="middle" font-size="11.5" fill="#46525B">BUY 25 @ 102</text>
+<g fill="none" stroke="#00906F" stroke-width="2"><rect x="20" y="186" width="680" height="70" rx="4"/></g>
+<text x="34" y="208" font-weight="700">Trades</text>
+<text x="34" y="228" fill="#46525B">10 units at 100 with id 2  ·  10 units at 100 with id 3  ·  5 units at 101 with id 1</text>
+<text x="34" y="246" fill="#46525B">The buyer’s limit was 102, but every trade used the price of the waiting order.</text>
+</g></svg>
+<figcaption><b>Figure 2.</b> The sell side of the book before and after the buy order. Order 2 trades before order 3 because it arrived first. Order 1 keeps its remaining 5 units.</figcaption>
+</figure>
+<p>The engine takes the best sell first. Orders 2 and 3 both ask 100, and order 2 arrived first, so it trades first: 10 units at 100. Then order 3 trades 10 units at 100. The buyer still wants 5 units, and the next best sell is order 1 at 101, which is still below the limit of 102. So 5 units trade at 101, and order 1 keeps its other 5 units in the book. The buyer offered 102 but never paid 102.</p>
+
+<h2>5. Rejecting bad orders</h2>
+<p>The engine checks every order before it touches the book. It rejects a type that is not exactly BUY or SELL, a price that is zero, negative or not a number, a quantity of zero or less, a missing order (null, meaning no order object at all), and an id that is already waiting in the book. It prints the reason, for example <i>ORDER REJECTED (id=3): quantity must be positive</i>. Checking at the entry point means the rest of the code can assume the order is valid.</p>
+
+<h2>6. How I checked it works</h2>
+<p>The test class runs 25 automated checks. Some test each rule with a small example: a full match, a partial fill of the waiting order, a partial fill of the new order, no match, time priority, price priority, trade price in both directions, a sweep across several price levels, cancelling and rejecting orders.</p>
+<p>The last group is a random test. It sends 5,000 random orders, with a fixed seed so the run can be repeated, and after every single order it checks three properties that must always be true:</p>
+<ul>
+<li>the book is never crossed: the best buy is below the best sell;</li>
+<li>both lists are in price-time order;</li>
+<li>no quantity is created or lost: what was submitted equals what was traded plus what is still waiting, on each side.</li>
+</ul>
+<p>The random test also checks that some trades happened, because a random test where nothing trades would prove nothing. With the final code, all 25 checks pass.</p>
+<p>I also checked that the tests are able to fail. Separately, I introduced three bugs on purpose, one at a time: wrong time priority, wrong trade price and wrong matching condition. The tests failed every time, and I removed the bugs afterwards.</p>
+
+<h2>7. Limits</h2>
+<ul>
+<li><b>Speed.</b> Inserting, removing the best order, cancelling and checking for duplicate ids all take time proportional to the number of waiting orders. The book slows down as it grows. A faster design would keep one queue per price level in a sorted structure.</li>
+<li><b>Prices are decimals.</b> Prices are only compared here, never added, so it works. A real system would use whole numbers of cents to avoid rounding problems.</li>
+<li><b>Only limit orders.</b> There are no market orders and no order changes.</li>
+<li><b>Duplicate ids</b> are detected only among waiting orders, so an id that was already fully executed can be reused.</li>
+<li>One instrument, one thread and no saved data.</li>
+</ul>
+
+<h2>What I take from this</h2>
+<p>The rules of an order book are easy to say and easy to get slightly wrong. The examples show that the rules work in the cases I thought of. The random test checks that three key properties keep holding in thousands of cases I did not choose by hand. That gives much more confidence, but it does not prove the code has no bugs.</p>
+</div>
+
+<h2>Code</h2>
+<ul><li>github.com/sebastian-escurra/order-book-matching-engine</li></ul>
+</body></html>
