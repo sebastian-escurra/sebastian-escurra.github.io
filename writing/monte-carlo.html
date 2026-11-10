@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Making a Monte Carlo price 21 times more precise</title>
+<style>
+@font-face{font-family:R;src:url(../fonts/lmroman10-regular.woff)}
+@font-face{font-family:R;font-style:italic;src:url(../fonts/lmroman10-italic.woff)}
+@font-face{font-family:R;font-weight:700;src:url(../fonts/lmromandemi10-regular.woff)}
+@font-face{font-family:S;src:url(../fonts/lmsans10-regular.woff)}
+@page{size:A4;margin:18mm 20mm}
+body{font:10.8pt/1.45 R,serif;color:#1F2933;max-width:41rem;margin:0 auto;padding:1.5rem 1rem 3rem}
+h1{font:700 22pt/1.15 R;margin:0 0 .3rem}
+.by{color:#46525B;margin:0 0 1.6rem;font-size:10.5pt}
+h2{font:700 14pt/1.2 R;margin:1.7rem 0 .4rem}
+p{margin:0 0 .75rem}
+figure{margin:1.1rem 0 1.2rem;break-inside:avoid}
+figure img{width:90%;margin:0 auto;height:auto;display:block}
+figcaption{font:10pt/1.4 S,sans-serif;color:#46525B;margin-top:.35rem}
+table{border-collapse:collapse;width:100%;font:10pt/1.4 S,sans-serif;margin:.4rem 0 1rem;break-inside:avoid}
+th,td{padding:.3rem .5rem;border-bottom:1px solid #D3D9D6;text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{border-bottom:1.5px solid #1F2933}
+.tw{overflow-x:auto}
+.formula{text-align:center;font-style:italic;margin:.5rem 0 .9rem}
+.note{font:10pt/1.45 S,sans-serif;color:#46525B}
+ul.src{padding-left:1.2rem;margin:.2rem 0}
+</style></head><body>
+<p class="note"><a href="../index.html">&larr; Home</a></p>
+<h1>Making a Monte Carlo option price about 20 times more precise without simulating more</h1>
+<p class="by">Sebastian Alexander Escurra Carmelo</p>
+
+<div id="body">
+<p>A Monte Carlo simulation gives a different answer every time you run it. Price the same option twice, with the same number of random draws, and you get two different prices. This noise is the main cost of the method. The obvious fix, simulating more, is slow: to cut the error in half you need four times as many simulations.</p>
+<p>So here is a more useful question: can we get a more precise answer for the same amount of computing? I tested two classic techniques on a European call option, and then used both together. For each of the first two I computed how much it should help, and then measured how much it did.</p>
+
+<h2>1. The problem</h2>
+<p>The option is a European call with today’s stock price 100, strike 105, one year to maturity, interest rate 5% and volatility 20%. Its price is the average payoff, discounted back to today.</p>
+<p>The Black–Scholes formula gives the exact price, 8.0214. I use it only as a yardstick, to check the simulations. Standard Monte Carlo works like this: draw random numbers, turn each into a possible stock price at maturity, compute the discounted payoff, and average. Every method in this article gets the same budget of 1,000 payoff evaluations.</p>
+<p>One run of standard Monte Carlo gave 7.49, which is 0.53 away from the exact price. Its standard error was 0.40 and its 95% confidence interval was (6.71, 8.28). The interval contains the exact price, so it is honest, but it is wide. That is the problem to fix.</p>
+
+<h2>2. First idea: use the mirror image of each draw</h2>
+<p>For every random number Z I also use its mirror image, −Z. If Z gives a high stock price, −Z gives a low one. The two payoffs tend to move in opposite directions, and averaging each pair cancels part of the noise. This technique is called antithetic variates.</p>
+<p>To keep the budget at 1,000 payoffs, I use only 500 random numbers, because each one gives two payoffs.</p>
+<p>How much should it help? If ρ is the correlation between the payoff of Z and the payoff of −Z, the variance of the estimate is multiplied by 1 + ρ. I measured ρ = −0.368 on a large sample of 200,000 random numbers, so the factor is 0.632. That predicts about 37% less variance.</p>
+
+<h2>3. Second idea: correct the estimate with something we know exactly</h2>
+<p>There is one quantity whose true average we know exactly: the discounted stock price at maturity. Its true average is simply today’s price, 100. In my sample the average came out at 99.37, a little too low. That means my sample had slightly too few high stock prices, so my average payoff is probably too low as well, and I correct it upwards. The correction is:</p>
+<p class="formula">estimate = payoff average − β × (stock average − 100)</p>
+<p>Here β is the slope of the line that predicts the payoff from the stock price. This technique is called a control variate. It uses the same 1,000 random numbers as the standard method, so any improvement comes only from the correction. In my first run the estimate moved from 7.49 to 7.84, and the standard error dropped from 0.40 to 0.19.</p>
+<p>How much should it help? If ρ is the correlation between the payoff and the stock price, the variance is multiplied by 1 − ρ². On the same large sample I measured ρ = 0.891, so the factor is 0.206. That predicts about 79% less variance. The link between payoff and stock price is strong for a call option, which is why this works well here.</p>
+
+<h2>4. Both together</h2>
+<p>The fourth method applies the control-variate correction to the antithetic pairs. For each pair I average the two payoffs and the two stock prices, and then correct as before. In my first run it gave 7.98, with a standard error of 0.09.</p>
+
+<h2>5. Repeating the experiment</h2>
+<p>One run is just one random sample, so its error is mostly luck. A good method can still have a bigger error in a single run. To see which method is really more precise, I repeated the whole experiment 5,000 times, always with a budget of 1,000 payoffs, and looked at how much each method’s price jumps around.</p>
+<figure>
+<img src="images/fig1_histograms.png" alt="Histograms of 5,000 price estimates for each method">
+<figcaption><b>Figure 1.</b> 5,000 price estimates for each method. The dashed line is the exact price. A narrower histogram means a more precise method. In the first three panels, each method is compared with standard Monte Carlo (grey). The fourth panel shows all four together.</figcaption>
+</figure>
+<div class="tw"><table>
+<thead><tr><th>Method</th><th>Variance</th><th>Variance reduction</th><th>Times smaller</th><th>Typical error</th><th>95% interval contains the price</th></tr></thead>
+<tbody>
+<tr><td>Standard</td><td>0.1741</td><td>0%</td><td>1.0×</td><td>0.417</td><td>95.1%</td></tr>
+<tr><td>Antithetic</td><td>0.1118</td><td>36%</td><td>1.6×</td><td>0.334</td><td>94.6%</td></tr>
+<tr><td>Control variate</td><td>0.0351</td><td>80%</td><td>5.0×</td><td>0.188</td><td>94.8%</td></tr>
+<tr><td>Both</td><td>0.0082</td><td>95%</td><td>21.2×</td><td>0.091</td><td>93.7%</td></tr>
+</tbody></table></div>
+<p>The two predictions held up. For the mirror trick I predicted 37% less variance and measured 36%. For the control variate I predicted 79% and measured 80%. Both together cut the variance by 95%, which is about 20 times smaller than standard Monte Carlo, and the typical error falls from 0.417 to 0.091. This is the narrowest histogram in Figure 1.</p>
+<p>The last column checks the error bars. A 95% confidence interval should contain the exact price about 95% of the time, and all four methods are close to that. The combined method is slightly below, at 93.7%.</p>
+
+<h2>6. What happens with a bigger budget</h2>
+<p>Theory says the typical error of Monte Carlo shrinks like 1/√budget. On a log-log plot that is a straight line with slope −0.5. Figure 2 shows the typical error for budgets from 100 to 10,000 payoffs, with 500 repeated experiments for each budget. All four methods have a slope between −0.50 and −0.52.</p>
+<figure>
+<img src="images/fig2_convergence.png" alt="Error against budget on a log-log plot">
+<figcaption><b>Figure 2.</b> Typical error against budget. The variance reduction techniques lower the whole curve but do not change its slope.</figcaption>
+</figure>
+<p>So the techniques do not change the rate of convergence. They reduce the error by a constant factor, which shifts the whole curve down.</p>
+
+<h2>7. Limits</h2>
+<ul>
+<li>The study uses a simple European call with constant volatility, so every result can be checked against an exact price. The techniques may behave differently on more complex options.</li>
+<li>The real value of Monte Carlo appears for options without a closed formula, for example options that depend on the whole price path. That is where these ideas matter most, and I did not test them there.</li>
+<li>The combined method’s intervals contain the exact price a little less often than 95%, so its error bars are slightly optimistic.</li>
+</ul>
+
+<h2>What I take from this</h2>
+<p>Always report a Monte Carlo price with an error bar, because a single price without one means little. And the variance reduction techniques are worth using: with the same budget, the combination gave a variance about 20 times smaller than standard Monte Carlo.</p>
+</div>
+
+<h2>Code</h2>
+<ul class="src">
+<li>Notebook and code: github.com/sebastian-escurra/monte-carlo-option-pricing</li>
+</ul>
+</body></html>
