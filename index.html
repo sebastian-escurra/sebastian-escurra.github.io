@@ -206,7 +206,7 @@ footer p{margin:0;max-width:40rem}
       <article class="project">
         <h3>Monte Carlo pricing of a European call</h3>
         <p>A Python notebook that prices a call option by simulation and compares four estimators on the same budget of 1,000 simulated payoffs: standard Monte Carlo, antithetic variates, a control variate, and the last two combined. Every estimate has a 95% confidence interval, and the exact Black–Scholes price is the reference.</p>
-        <p>Combined, the variance is about 20 times smaller than with standard Monte Carlo. The error of every method shrinks like <i>N</i><sup>−1/2</sup>, and the confidence intervals contain the true price close to 95% of the time.</p>
+        <p>Combined, the variance is about 21 times smaller than with standard Monte Carlo (the typical error is about 4.6 times smaller). The error of every method shrinks like <i>N</i><sup>−1/2</sup>, and the confidence intervals contain the true price close to 95% of the time.</p>
         <dl class="facts">
           <dt>Built with</dt><dd>Python, NumPy, SciPy, pandas, Matplotlib</dd>
           <dt>Checked by</dt><dd>Comparison with the exact price, 5,000 repeated experiments, and the measured convergence rate</dd>
@@ -232,7 +232,7 @@ footer p{margin:0;max-width:40rem}
     <h2>Writing</h2>
     <div class="body">
       <ul class="list">
-        <li><a href="writing/monte-carlo.html">Making a Monte Carlo option price about 20 times more precise without simulating more</a></li>
+        <li><a href="writing/monte-carlo.html">Cutting the variance of a Monte Carlo option price by about 21 times without simulating more.</a></li>
         <li><a href="writing/order-book.html">Who trades first? Building a limit order book and matching engine in Java</a></li>
       </ul>
     </div>
